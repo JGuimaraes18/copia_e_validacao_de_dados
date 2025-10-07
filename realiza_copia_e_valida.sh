@@ -13,10 +13,12 @@ read path_origem
 echo "Digite o diretório de destino:"
 read path_destino
 
+echo "Digite o nome da saída de log:"
+read log_name
+
 # Definicão dos logs
-dir=$(basename $path_origem)
 mkdir -p log
-log_saida="log/$dir.log"
+log_saida="log/$log_name"
 log_erro="log/erro.log"
 
 # Confirmação do usuário para copiar
