@@ -8,22 +8,22 @@
 
 # Interação de entrada com o usuário
 echo "Digite o diretório de origem:"
-read path_origem
+read path_origin
 
 echo "Digite o diretório de destino:"
-read path_destino
+read path_destiny
 
 echo "Digite o nome da saída de log:"
 read log_name
 
 # Definicão dos logs
 mkdir -p log
-log_saida="log/$log_name"
-log_erro="log/erro.log"
+log_output="log/$log_name"
+log_error="log/erro.log"
 
 # Confirmação do usuário para copiar
 echo ""
-echo "Confirme para iniciar a cópia '$path_origem' --> '$path_destino' "
+echo "Confirme para iniciar a cópia '$path_origin' --> '$path_destiny' "
 read -p "Deseja continuar? (s/n): " resp
 if [[ "$resp" != "s" && "$resp" != "S" && "$resp" != "Sim" && "$resp" != "SIM" && "$resp" != "sim" ]]; then
     echo "Operação cancelada."
@@ -31,15 +31,15 @@ if [[ "$resp" != "s" && "$resp" != "S" && "$resp" != "Sim" && "$resp" != "SIM" &
 fi
 
 # Realiza a cópia e faz o tratamento de erros
-rsync -av "$path_origem/" "$path_destino/" 2>>"$log_erro"
-ret=$?
+rsync -av "$path_origin/" "$path_destiny/" 2>>"$log_error"
+return=$?
 
-if [ $ret -ne 0 ]; then
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] Erro na cópia do diretório: $path_origem (código $ret)" >>"$log_erro"
-    exit $ret
+if [ $return -ne 0 ]; then
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] Erro na cópia do diretório: $path_origin (código $return)" >>"$log_error"
+    exit $return
 fi
 
-cd $path_origem || { echo "Erro ao acessar o diretório de origem"; exit 1; }
+cd $path_origin || { echo "Erro ao acessar o diretório de origem"; exit 1; }
 
 # Inicia a identificação e validação dos arquivos
 echo ""
@@ -48,20 +48,20 @@ echo "...Aguarde..."
 
 for file in $(find .  -type f |cut -c 2-)
 do	
-		md5_origem=$(md5sum $path_origem/$file |awk '{print $1}')
-		md5_destino=$(md5sum $path_destino/$file |awk '{print $1}')
+		md5_origin=$(md5sum $path_origin/$file |awk '{print $1}')
+		md5_destiny=$(md5sum $path_destiny/$file |awk '{print $1}')
 
-		if [ $md5_origem == $md5_destino ]
+		if [ $md5_origin == $md5_destiny ]
 		then
-			printf "%-15s %-15s %-15s %-15s\n" $file $md5_origem $md5_destino 'OK' >> $log_saida
+			printf "%-15s %-15s %-15s %-15s\n" $file $md5_origin $md5_destiny 'OK' >> $log_output
 		else
-			printf "%-15s %-15s %-15s %-15s\n" $file $md5_origem $md5_destino 'ERRO' >> $log_saida
+			printf "%-15s %-15s %-15s %-15s\n" $file $md5_origin $md5_destiny 'ERRO' >> $log_output
 		fi
 done
 
 echo ""
-echo "Cópia e Validação do diretório $path_origem concluída."
-echo "Log salvo em $log_saida" 
+echo "Cópia e Validação do diretório $path_origin concluída."
+echo "Log salvo em $log_output" 
 echo "Gerado em $(date '+%Y-%m-%d %H:%M:%S')"
 
 exit
